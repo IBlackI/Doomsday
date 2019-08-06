@@ -76,12 +76,16 @@ end
 function spawn_biters_with_path(points, biter_type, group_size)
 	local groups = game.surfaces[settings.surface].create_unit_group({
 		position = points[1]})
-
+	-- first x,y in points[] is used as the spawn point. 
 	for i = 0, group_size do
 		location = {x = points[1].x, y = points[1].y} -- first points are always spawn point
-		groups.add_member(game.surfaces[1].create_entity{
-			name = biter_type,
-			position = game.surfaces[1].find_non_colliding_position(biter_type, location, settings.biter_spawn_radius, 0.3, false)})
+		local spawn_point = game.surfaces[1].find_non_colliding_position(biter_type, location, settings.biter_spawn_radius, 0.3, false)
+		if not spawn_point == nil then -- incase no possition is found
+			groups.add_member(game.surfaces[1].create_entity{
+				name = biter_type,
+				position = spawn_point
+			})
+		end
 	end
 	groups.set_command{
 		type = defines.command.compound,
