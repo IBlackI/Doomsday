@@ -1,4 +1,3 @@
-global.time_between_waves = 36000
 -- valid biter names:
 -- small-biter     small-spitter
 -- medium-biter    medium-spitter
@@ -9,53 +8,60 @@ local settings = {
 	startup_message_ticks = 1000,
 	map_size = {x = 2000, y = 2000},
 	surface = 1,
+	spawn_point = {x = 0, y = 0},
+}
+
+local tick_time = {
+	second = 60,
+	minute = 3600,
+	hour = 216000,
 }
 -- global.settings.biter_spawn_radius
-global.waves = {{ -- 1
+global.waves = {{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*2, -- 20min
+	trigger_tick = tick_time.minute*20,
 	biter_to_spawn = "small-biter",
 	nodes = 40,
 	group_size = 6
-},	{ -- 2
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*3, -- 30min
+	trigger_tick = tick_time.minute*30,
 	biter_to_spawn = "small-spitter",
 	nodes = 5,
 	group_size = 50
-},	{ -- 3
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*4, -- 40min
+	trigger_tick = tick_time.minute*40,
 	biter_to_spawn = "medium-spitter",
 	nodes = 38,
 	group_size = 9
-},	{ -- 4
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*5, -- 50min
+	trigger_tick = tick_time.minute*50,
 	biter_to_spawn = "medium-biter",
 	nodes = 38,
 	group_size = 9
-},	{ -- 5
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*6, -- 60min
+	trigger_tick = tick_time.minute*60,
 	biter_to_spawn = "big-spitter",
 	nodes = 22,
 	group_size = 18	
-},	{ -- 6
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*7, -- 70min
+	trigger_tick = tick_time.minute*70,
 	biter_to_spawn = "big-biter",
 	nodes = 18,
 	group_size = 18	
-},	{ -- 7
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*9, -- 90min
+	trigger_tick = tick_time.minute*90,
 	biter_to_spawn = "behemoth-spitter",
 	nodes = 14,
 	group_size = 30	
-},	{ -- 8
+},	{
 	has_happened = false,
-	trigger_tick = global.time_between_waves*9.1, -- 91min
+	trigger_tick = tick_time.minute*91,
 	biter_to_spawn = "behemoth-biter",
 	nodes = 8,
 	group_size = 40	
@@ -76,7 +82,8 @@ end
 function spawn_biters_with_path(points, biter_type, group_size)
 	local groups = game.surfaces[settings.surface].create_unit_group({
 		position = points[1]})
-	-- first x,y in points[] is used as the spawn point. 
+	-- first x,y in points[] is used as the spawn point.
+	-- maybe skip loop if no possition is found instead of re-trying group_size number of times?
 	for i = 0, group_size do
 		location = {x = points[1].x, y = points[1].y} -- first points are always spawn point
 		local spawn_point = game.surfaces[1].find_non_colliding_position(biter_type, location, settings.biter_spawn_radius, 0.3, false)
@@ -94,8 +101,11 @@ function spawn_biters_with_path(points, biter_type, group_size)
 	}
 end
 
-function spawn_biters(biter_type, nodes, group_size)
+function spawn_biters(biter_type, nodes, group_size, points)
 	local map_size = settings.map_size -- maybe get from map-gen settings?
+	-- list of lines. The final paths will be drawn between equal points on
+	-- the lines. The first line is where the biters will spawn. The last 
+	-- is where they will end up assuming they don't get distracted or die. 
 	local points = {
 		{
 			start = {x = 0 - map_size.x/2.1, y = 0 - map_size.y/3},
@@ -116,14 +126,14 @@ function spawn_biters(biter_type, nodes, group_size)
 			y = (points[i].stop.y - points[i].start.y)/nodes
 		}
 	end
-	local paths = {}
+	local paths = {} 
 	for i=1, nodes do
 		for j = 1, #points do
 			path[j] = {
 				x = (points[j].start.x + (step_size[j].x * i)),
 				y = (points[j].start.y + (step_size[j].y * i))
 			}
-		end
+		end -- final list of paths used to spawn biters and give them attack coords.
 		spawn_biters_with_path(paths,
 		biter_type, 
 		group_size)
@@ -132,8 +142,7 @@ end
 
 function attack_waves_core()
 	-- game.force.player.
-	local spawn_point = {x = 0, y = 0}
-	game.forces["player"].set_spawn_position(spawn_point, settings.surface)
+	game.forces["player"].set_spawn_position(settings.spawn_point, settings.surface)
 	local tick = game.tick
 	if tick < settings.startup_message_ticks then
 		game.print("Attack waves loaded! Running " .. #global.waves .. " waves. Stand by for first wave!")

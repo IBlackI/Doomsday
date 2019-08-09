@@ -82,3 +82,23 @@ function test_biter()
     }
 end
 test_biter()
+
+/silent-command local f = game.forces['player']
+f.set_ammo_damage_modifier('bullet', 0.5)
+f.set_ammo_damage_modifier('flamethrower', 3.8)
+f.set_ammo_damage_modifier('cannon-shell', 1.0)
+f.set_ammo_damage_modifier('grenade', 2.0)
+f.set_ammo_damage_modifier('laser-turret', 1)
+f.set_ammo_damage_modifier('rocket', 1)
+f.set_ammo_damage_modifier('shotgun-shell', 10.0)
+f.set_turret_attack_modifier('laser-turret', 1)
+f.set_turret_attack_modifier('flamethrower-turret', 3.8)
+f.set_turret_attack_modifier('gun-turret', 0.5)
+f.set_gun_speed_modifier('artillery-shell', 6.0)
+f.set_gun_speed_modifier('bullet', 1.5)
+f.set_gun_speed_modifier('flamethrower', 0)
+f.set_gun_speed_modifier('cannon-shell', 25.6)
+f.set_gun_speed_modifier('grenade', 1)
+f.set_gun_speed_modifier('laser-turret', 22.0)
+f.set_gun_speed_modifier('rocket', 27.2)
+f.set_gun_speed_modifier('shotgun-shell', 0.2)
