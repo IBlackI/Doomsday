@@ -1,4 +1,3 @@
-global.attack_waves_debug = false
 function biter_poly_path(points, waves)
 	local distraction = waves.distraction or defines.distraction.by_anything
 	if global.attack_waves_debug and not waves.distraction then

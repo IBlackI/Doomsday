@@ -4,7 +4,6 @@
 
 
 local modules = {
-    require("silo-script"),
 	require("attack_waves_manager"),
     --require("pdnc"),
     --require("doomsday"),
@@ -12,19 +11,23 @@ local modules = {
 }
 
 script.on_init(function()
+	register_events()
     for i,mod in ipairs(modules) do
         if mod.on_init then
             mod.on_init()
         end
     end
+	register_tick_handlers()
 end)
 
 script.on_load(function()
+	register_events()
     for i,mod in ipairs(modules) do
         if mod.on_load then
             mod.on_load()
         end
     end
+	register_tick_handlers()
 end)
 
 script.on_configuration_changed(function(data)
@@ -35,12 +38,12 @@ script.on_configuration_changed(function(data)
     end
 end)
 
-local function register_tick_handlers()
+function register_tick_handlers()
     local ticks = {}
     for i,mod in ipairs(modules) do
-    	print("-------------------------------")
-        print(mod.on_nth_ticks)
-        print("-------------------------------")
+    	print("=====")
+        print(serpent.block(mod.on_nth_ticks))
+        print("=====")
         if mod.on_nth_ticks then
             mod_ticks = mod.on_nth_ticks
             for t,f in pairs(mod_ticks) do
@@ -61,9 +64,8 @@ local function register_tick_handlers()
         end)
     end
 end
-register_tick_handlers()
 
-local function register_events()
+function register_events()
     local events = {}
     for i,mod in ipairs(modules) do
         if mod.get_events then
@@ -86,7 +88,6 @@ local function register_events()
         end)
     end
 end
-register_events()
 
 for i,mod in ipairs(modules) do
     if mod.add_remote_interfaces then
@@ -99,9 +100,6 @@ for i,mod in ipairs(modules) do
         mod.add_commands()
     end
 end
-
-
-
 
 -- This is a example of what to put at the end of your code, ie doomsday.lua
 -- replace all the EXAMPLE 's with any name you want, they have to be all the same
